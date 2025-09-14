@@ -1,4 +1,4 @@
-let lastMessage = ""; // memória temporária (reinicia quando a função hiberna)
+let lastMessage = ""; // memória temporária enquanto a função estiver ativa
 
 exports.handler = async (event) => {
   let msg = "";
