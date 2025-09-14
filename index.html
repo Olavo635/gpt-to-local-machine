@@ -19,7 +19,9 @@
       <input type="text" id="inputMsg" placeholder="Digite uma mensagem">
       <button id="btnSet">Enviar</button>
     </form>
-    <p style="font-size:13px;color:rgba(230,238,248,0.7);margin-top:8px;">Use <code>?msg=Texto+aqui</code> ou envie via formulário.</p>
+    <p style="font-size:13px;color:rgba(230,238,248,0.7);margin-top:8px;">
+      Use <code>?msg=Texto+aqui</code ou envie via formulário.
+    </p>
   </div>
 
 <script>
@@ -28,7 +30,7 @@ const input = document.getElementById('inputMsg');
 const btn = document.getElementById('btnSet');
 
 async function fetchMessage(msgParam) {
-  let url = '/.netlify/functions/saveMsg';
+  let url = '/saveMsg.js';
   if(msgParam) url += '?msg=' + encodeURIComponent(msgParam);
   const res = await fetch(url);
   const data = await res.json();
