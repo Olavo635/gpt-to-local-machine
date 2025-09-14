@@ -14,29 +14,40 @@
 </head>
 <body>
   <div class="card">
-    <div class="msg-box" id="msg">Nenhuma mensagem recebida.</div>
+    <div class="msg-box" id="msg">Carregando mensagem...</div>
     <form onsubmit="return false;">
       <input type="text" id="inputMsg" placeholder="Digite uma mensagem">
-      <button id="btnSet">Mostrar</button>
+      <button id="btnSet">Enviar</button>
     </form>
-    <p style="font-size:13px;color:rgba(230,238,248,0.7);margin-top:8px;">Use <code>?msg=Texto+aqui</code> na URL para testar via GET.</p>
+    <p style="font-size:13px;color:rgba(230,238,248,0.7);margin-top:8px;">Use <code>?msg=Texto+aqui</code> ou envie via formulário.</p>
   </div>
 
 <script>
-function decodeParam(s){try{return decodeURIComponent(s.replace(/\+/g,' '))}catch(e){return s}}
-function getQuery(){const q=location.search.replace(/^\?/,'');if(!q) return {};return Object.fromEntries(q.split('&').map(p=>{const [k,v]=p.split('=');return [k||'',v||'']}))}
-function showMessage(txt){document.getElementById('msg').textContent=txt&&txt.trim()!==''?txt:'Nenhuma mensagem recebida.'}
+const msgBox = document.getElementById('msg');
+const input = document.getElementById('inputMsg');
+const btn = document.getElementById('btnSet');
 
-// Verifica query string ao carregar
-(function(){const qs=getQuery();if(qs.msg){showMessage(decodeParam(qs.msg));}})();
+async function fetchMessage(msgParam) {
+  let url = '/.netlify/functions/saveMsg';
+  if(msgParam) url += '?msg=' + encodeURIComponent(msgParam);
+  const res = await fetch(url);
+  const data = await res.json();
+  msgBox.textContent = data.msg || 'Nenhuma mensagem recebida.';
+}
 
-// Botão de teste local
-document.getElementById('btnSet').addEventListener('click',()=>{
-  const v=document.getElementById('inputMsg').value||'';
-  const encoded=encodeURIComponent(v);
-  const newUrl=location.pathname+'?msg='+encoded;
-  history.replaceState(null,'',newUrl);
-  showMessage(v);
+// Verifica ?msg= na URL ao carregar
+const params = new URLSearchParams(window.location.search);
+if(params.has('msg')) fetchMessage(params.get('msg'));
+else fetchMessage();
+
+// Enviar mensagem via formulário
+btn.addEventListener('click', () => {
+  const v = input.value.trim();
+  if(!v) return;
+  fetchMessage(v);
+  input.value = '';
+  const newUrl = location.pathname + '?msg=' + encodeURIComponent(v);
+  history.replaceState(null, '', newUrl);
 });
 </script>
 </body>
